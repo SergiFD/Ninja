@@ -1,0 +1,19 @@
+<resources>
+    <string-array name="list_entries">
+        <item>Opció 1</item>
+        <item>Opció 2</item>
+        <item>Opció 3</item>
+    </string-array>
+    <string-array name="list_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+        <string-array name="ninjas">
+            <item>ninja1</item>
+            <item>ninja2</item>
+            <item>ninja3</item>
+        </string-array>
+
+</resources>

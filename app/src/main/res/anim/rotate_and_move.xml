@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Rotación sobre sí mismo (una vez por ciclo)
+    <rotate
+        android:fromDegrees="0"
+        android:toDegrees="360"
+        android:duration="2000"
+        android:fillAfter="true" />-->
+
+    <!-- Movimiento a la derecha (y regreso) -->
+    <translate
+        android:fromXDelta="-70%"
+        android:toXDelta="70%"
+        android:duration="750"
+        android:startOffset="1500"
+        android:repeatCount="infinite"
+        android:repeatMode="reverse" />
+
+</set>

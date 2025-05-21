@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBoxPreference
+        android:key="musica"
+        android:title="Reproduir música"
+        android:summary="Es reproduirà música de fons"
+        android:defaultValue="true" />
+
+    <ListPreference
+        android:key="ninja"
+        android:title="Ninja"
+        android:summary="Escollir ninja"
+        android:dialogTitle="Indicar ninja"
+        android:entries="@array/ninjas"
+        android:entryValues="@array/ninjas"
+        android:defaultValue="ninja1" />
+
+    <EditTextPreference
+        android:key="enemics"
+        android:title="Nombre de enemics"
+        android:summary="Quantitat inicial d'enemics"
+        android:dialogTitle="Introdueix el nombre d'enemics"
+        android:inputType="number"
+        android:defaultValue="5" />
+
+</PreferenceScreen>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_configuracio"
+        android:icon="@drawable/configuraciones"
+        android:orderInCategory="100"
+        android:title="Configuració"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_informacio"
+        android:icon="@drawable/boton_de_informacion"
+        android:orderInCategory="200"
+        android:title="Informació"
+        app:showAsAction="always" />
+
+    <!--  android:icon="@drawable/ic_configuracio"  Afegir icona si vols -->
+
+
+</menu>
