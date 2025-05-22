@@ -19,7 +19,6 @@ class Grafics(private val view: View, val drawable: Drawable) {
     var rotacio: Int = 0
     val amplada: Int = drawable.intrinsicWidth
     val altura: Int = drawable.intrinsicHeight
-    val radiColisio: Int = (amplada + altura) / 4
 
     fun dibuixaGrafic(canvas: Canvas) {
         canvas.save()
@@ -51,9 +50,5 @@ class Grafics(private val view: View, val drawable: Drawable) {
 
     fun distancia(g: Grafics): Double {
         return hypot(posX - g.posX, posY - g.posY)
-    }
-
-    fun verificaColisio(g: Grafics): Boolean {
-        return distancia(g) < (radiColisio + g.radiColisio)
     }
 }

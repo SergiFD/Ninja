@@ -12,9 +12,11 @@ import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.preference.PreferenceManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -47,6 +49,13 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        val salir = findViewById<Button>(R.id.tb_Salir)
+
+        salir.setOnClickListener {
+            mostrarDialogSortida()
+        }
+
+
         // Configurar el botó de jugar
         bt_Jugar.setOnClickListener {
             mostrarDialogNom()
@@ -59,11 +68,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun reproSong() {
-        // Inicialitzar la música
-        mediaPlayer = MediaPlayer.create(this, R.raw.bluebird_musica_fondo)
-        mediaPlayer.isLooping = true // Perquè la música es repeteixi
-        mediaPlayer.start()
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val musicaActivada = prefs.getBoolean("musica", true)
+
+        if (musicaActivada) {
+            mediaPlayer = MediaPlayer.create(this, R.raw.bluebird_musica_fondo)
+            mediaPlayer.isLooping = true
+            mediaPlayer.start()
+        }
     }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
@@ -94,14 +108,40 @@ class MainActivity : AppCompatActivity() {
         builder.show()
     }
 
+    override fun onPause() {
+        super.onPause()
+        // Pausar o detener MediaPlayer cuando la actividad ya no está en primer plano
+        if (::mediaPlayer.isInitialized && mediaPlayer.isPlaying) {
+            mediaPlayer.pause()
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        // Alliberar recursos del MediaPlayer
-        if (::mediaPlayer.isInitialized && mediaPlayer.isPlaying) {
-            mediaPlayer.stop()
+        // Liberar recursos del MediaPlayer al destruir la actividad
+        if (::mediaPlayer.isInitialized) {
+            if (mediaPlayer.isPlaying) {
+                mediaPlayer.stop()
+            }
             mediaPlayer.release()
         }
     }
+    override fun onResume() {
+        super.onResume()
+
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val musicaActivada = prefs.getBoolean("musica", true)
+
+        if (::mediaPlayer.isInitialized) {
+            if (musicaActivada && !mediaPlayer.isPlaying) {
+                mediaPlayer.start()
+            } else if (!musicaActivada && mediaPlayer.isPlaying) {
+                mediaPlayer.pause()
+            }
+        }
+    }
+
+
 
     private fun mostrarDialogNom() {
         val inflater = LayoutInflater.from(this)
@@ -118,7 +158,12 @@ class MainActivity : AppCompatActivity() {
             .create() // Crear el diàleg
 
         buttonName.setOnClickListener {
-            val nom = editText.text.toString()
+            val nom = editText.text?.toString()?.trim() ?: ""
+
+            if (nom.isBlank()) {
+                Toast.makeText(this, "El nom no pot estar buit", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
             // Guardar en SharedPreferences
             val prefs = this.getSharedPreferences("prefs", Context.MODE_PRIVATE)
@@ -135,4 +180,16 @@ class MainActivity : AppCompatActivity() {
 
         dialog.show()
     }
+
+    private fun mostrarDialogSortida() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Sortir de l'app")
+        builder.setMessage("Estàs segur que vols sortir?")
+        builder.setPositiveButton("Sí") { _, _ ->
+            finishAffinity() // Cierra todas las actividades y sale de la app
+        }
+        builder.setNegativeButton("No", null)
+        builder.show()
     }
+
+}

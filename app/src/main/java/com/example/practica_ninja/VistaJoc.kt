@@ -11,6 +11,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.preference.PreferenceManager
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -28,8 +29,6 @@ class VistaJoc(context: Context, attrs: AttributeSet) : View(context, attrs) {
     // ////// NINJA ////////
     private var girNinja = 0
     private var acceleracioNinja = 0f
-    private val INC_GIR = 5
-    private val INC_ACCELERACIO = 0.5f
 
     //Ganivet//
     private val ganivets = mutableListOf<Grafics>()
@@ -37,7 +36,6 @@ class VistaJoc(context: Context, attrs: AttributeSet) : View(context, attrs) {
     private lateinit var ganivet: Grafics
     private val INC_VELOCITAT_GANIVET = 12
     private var ganivetActiu = false
-    private val tempsGanivet = 0
 
     // ////// THREAD ////////
     private lateinit var thread: ThreadJoc
@@ -49,17 +47,16 @@ class VistaJoc(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
 
     init {
-        tvScore = findViewById(R.id.tvScore)
-        val prefs = context.getSharedPreferences("com.example.practica_ninja_preferences", Context.MODE_PRIVATE)
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
         val numEnemics = prefs.getString("enemics", "5")?.toIntOrNull() ?: 5
 
         drawableEnemic = AppCompatResources.getDrawable(context, R.drawable.ninja_enemic)
             ?: throw IllegalArgumentException("Falta ninja_enemic.png en drawable")
 
-        val ninjaImageResId = when (prefs.getString("disseny_personatge", "1") ?: "1") {
-            "1" -> R.drawable.ninja01
-            "2" -> R.drawable.ninja02
-            "3" -> R.drawable.ninja03
+        val ninjaImageResId = when (prefs.getString("ninja", "1") ?: "1") {
+            "ninja1" -> R.drawable.ninja01
+            "ninja2" -> R.drawable.ninja02
+            "ninja3" -> R.drawable.ninja03
             else -> R.drawable.ninja01
         }
 
@@ -223,13 +220,32 @@ class VistaJoc(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
         // Comprovar col·lisions ninja-enemics
         for (enemic in objectius) {
-            if (enemic.drawable == drawableEnemic &&
+            if ((enemic.drawable == drawableEnemic || drawableObjectiu.contains(enemic.drawable)) &&
                 ninja.distancia(enemic) < (ninja.amplada + enemic.amplada) / 2) {
 
-                partidaAcabada = true // <-- AÑADE ESTO
+                partidaAcabada = true
 
                 if (!partidaDialogMostrat) {
                     partidaDialogMostrat = true
+
+                    // GUARDAR PUNTUACIÓ I NOM
+                    val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
+                    val nomJugador = prefs.getString("NOM_JUGADOR", "Jugador") ?: "Jugador"
+
+                    // Obtenim el ranking actual
+                    val rankingPrefs = context.getSharedPreferences("PuntuacionsPrefs", Context.MODE_PRIVATE)
+                    val editor = rankingPrefs.edit()
+
+                    // Busquem un índex lliure (jugador1, jugador2, etc.)
+                    var i = 1
+                    while (rankingPrefs.contains("jugador$i")) {
+                        i++
+                    }
+
+                    // Guardem nova entrada
+                    editor.putString("jugador$i", "$nomJugador: $score")
+                    editor.apply()
+
                     post {
                         AlertDialog.Builder(context)
                             .setTitle("Game Over")
@@ -241,23 +257,16 @@ class VistaJoc(context: Context, attrs: AttributeSet) : View(context, attrs) {
                             .show()
                     }
                 }
-            }
 
+            }
         }
+
 
         // Actualitzar ganivets
         val iterator = ganivets.iterator()
         while (iterator.hasNext()) {
             val g = iterator.next()
             g.incrementaPos(retard)
-
-            // Eliminar ganivet si surt de pantalla
-            if (g.posX < -g.amplada || g.posX > width + g.amplada ||
-                g.posY < -g.altura || g.posY > height + g.altura
-            ) {
-                iterator.remove()
-                continue
-            }
 
             // Comprovar col·lisions amb enemics
             for ((index, enemic) in objectius.withIndex()) {
@@ -280,9 +289,10 @@ class VistaJoc(context: Context, attrs: AttributeSet) : View(context, attrs) {
     }
 
 
+
     fun setTextViewScore(textView: TextView) {
         this.tvScore = textView
-        tvScore?.text = "Punts: $score"
+        actualitzaScore()
     }
 
     private fun actualitzaScore() {
@@ -290,6 +300,7 @@ class VistaJoc(context: Context, attrs: AttributeSet) : View(context, attrs) {
             tvScore?.text = "Punts: $score"
         }
     }
+
 
 }
 
